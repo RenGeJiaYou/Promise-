@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宏队列和微队列</title>
+  </head>
+  <body>
+    <img src="img/两种队列.png" alt="" srcset="" />
+    <script>
+      /*宏队列和微队列
+        1.两种队列
+            宏队列：用来保存待执行的宏任务（回调），比如：定时器回调、DOM 事件回调、ajax 回调。
+            微队列：用来保存待执行的微任务（回调），比如：promise的回调、MutationObserver 的回调。
+        2.每当执行下一个宏任务前，先检查微队列有无任务。
+            有微任务 -> 全部执行
+            没有微任务 -> 继续执行宏任务。
+        */
+
+      //代码一
+      setTimeout(() => {
+        console.log("定时器回调，属于宏队列。优先级较低");
+      }, 10);
+
+      Promise.resolve("promise 回调，属于微队列。优先级较高").then(value => {
+        console.log(value);
+      });
+      console.log(
+        "主线程执行的代码,最先被执行.主线程结束后，才调用异步队列中的任务"
+      );
+      //OutPut:
+      // 主线程执行的代码,最先被执行
+      //  promise 回调，属于微队列。优先级较高
+      // 定时器回调，属于宏队列。优先级较低
+    </script>
+  </body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /*
+        Promise 的链式调用 
+        then() 返回一个【新 Promise 对象】, 状态由 这个 then() 的返回值决定
+            1.返回的是非 Promise 值 a (不管在 resolve() 还是rejected() 返回) -> 【新 Promise 对象】状态：fulfilled;  value:a
+            2.返回的是 Promise 值 -> 【新 Promise 对象】状态、值和返回的 Promise 实例一致
+            3.then()所指定的回调抛出异常 -> 【新 Promise 对象】状态：rejected;   reason:所抛出的那个异常 
+        */
+
+      const p1 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          //   resolve("a");     //p1.then() 调用 resolve()
+          reject("a"); //p1.then() 调用 rejected()
+        }, 1000);
+      });
+
+      p1.then(
+        value => {
+          return " returner of p1 resolve"; //将返回给新建的实例对象，也就是下一个 then() 的 resolve(value) 里
+        },
+        reason => {
+          return " returner of p1 rejected "; //将返回到下一个 then() 的 resolve(reason) 里
+        }
+      )
+        .then(
+          value => {
+            console.log(value, "p2 success");
+            return Promise.resolve("p2 success");
+          },
+          reason => {
+            console.log(reason, "p2 fail");
+            return Promise.reject("p2 fail");
+          }
+        )
+        .then(
+          value => {
+            console.log(value, "p3 success");
+          },
+          reason => {
+            console.log(reason, "p3 fail");
+          }
+        );
+
+      //验证抛出一个异常
+      const p2 = new Promise((resolve, reject) => {
+        resolve("a");
+      });
+      p2.then(
+        value => {
+          throw new Error("ERR"); //执行 👇66行
+        },
+        reason => {}
+      ).then(
+        value => {
+          console.log("success", value);
+        },
+        reason => {
+          console.log("fail ", reason);
+        }
+      );
+    </script>
+  </body>
+</html>

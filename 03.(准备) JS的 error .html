@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS 的错误处理</title>
+  </head>
+  <body>
+    <script>
+      /* 1.错误的类型
+            Error:              所有错误的父类型
+            ReferenceError:     引用的变量不存在
+            TypeError:          数据类型不正确
+            RangeError:         数据值不在允许的范围内(死循环)
+            SyntaxError:        语法错误
+      
+        2.错误处理
+            捕获错误 try()catch(){}
+            抛出错误 throw error
+
+        3.错误对象
+            message 属性：  错误相关信息
+            stack 属性：    记录信息
+      */
+
+      //演示：ReferenceError
+      //   console.log(a);
+
+      //演示： TypeError
+      //   const e = () => {};
+
+      //演示： RangeError 无限递归的死循环（数组越界访问仅显示 undefined）
+      //   const demo = () => {
+      //     demo();
+      //   };
+      //   demo();
+
+      //--------------------------
+      //错误捕获： try{}包裹可能出错的代码，出错时转到 catch 并携带捕获的错误信息
+      try {
+        console.log(a);
+      } catch (error) {
+        console.log(error);
+      }
+
+      //--------------------------
+      //错误抛出： 捕获是由 JS 引擎完成的，开发者可以主动抛出错误
+      function demo() {
+        let date = Date.now();
+        if (date % 2 === 0) {
+          console.log("work fine");
+        } else {
+          throw Error("no work");
+        }
+      }
+
+      try {
+        demo();
+      } catch (error) {
+        debugger;
+        console.log(error);
+      }
+    </script>
+  </body>
+</html>

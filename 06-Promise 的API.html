@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!--
+        1.Promise 构造函数： new Promise(executor){}
+            executor 函数： 是同步执行的，(resolve,reject)=>{}
+            resolve 函数：  让 Promise 内部实例状态变成 fulfilled ,并指定成功信息
+            reject 函数：   让 Promise 内部实例状态变成 rejected ,并指定失败信息
+            说明： executor()本身在Promise 实例内部被立即同步调用。而异步代码写在  executor() 内部
+
+        2.Promise.prototype.then()： p.then(onFulfilled[, onRejected]);
+            onFulfilled: 成功的回调函数 (value)=>{}
+            onRejected: 失败的回调函数 (reason)=>{}
+            注意：then()会返回一个新的 Promise 对象
+
+        3.Promise.prototype.catch()： p.cathc(onRejected)
+            onRejected: 失败的回调函数 (reason)=>{}
+            注意：catch()是then()的语法糖，等价于 p.then(undefined,onRejected);
+
+        4.Promise.resolve 方法：Promise.resolve(value)
+            说明：快速返回一个状态为 fulfilled 的实例对象
+            备注：极少数情况下，value 传入一个状态为 rejected 的 Promise 对象，Promise.resolve(value)将也返回一个 rejected Promise 对象
+
+        5.Promise.reject 方法： Promise.reject(reason)
+            说明：快速返回一个状态为 rejected 的实例对象
+            备注：哪怕 reason 传入的是一个fulfilled Promise 实例，也将返回一个 失败对象。
+
+        6.Promise.all 方法：    Promise.all(PromiseArray[])
+            PromiseArray[]：包含 n 个 p 的数组。
+            说明：返回一个新的 p ,全部成功才成功，有一个失败则失败
+
+        6.Promise.race() 方法：    Promise.race(PromiseArray[])
+            PromiseArray[]：包含 n 个 p 的数组。
+            说明：返回一个新的 p ,返回结果以第一个 Promise 结果为准    
+
+    -->
+    <script>
+      //1.验证 then()会返回一个新的 Promise 对象
+      const p = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(1000);
+        }, 1000);
+      });
+
+      const pp = p.then(
+        value => {
+          console.log("success", value);
+        },
+        reason => {
+          console.log("fali", reason);
+        }
+      );
+      console.log(pp);
+
+      //2.验证 Promise.resolve(value)可以快速返回一个 fulfilled 状态
+      const demo = Promise.resolve(5461);
+      const demo1 = Promise.resolve(demo);
+
+      /*等价于
+      const demo = new Promise((resolve,rejected)=>{
+        resolve(param);
+      })
+      */
+      demo1.then(
+        value => {
+          console.log("验证 Promise.resolve(value)", value);
+        },
+        reason => {
+          console.log("fail", reason);
+        }
+      );
+
+      //2. Promise.resolve() / rejected() 除了传 非Promise 值，也能传 Promise 实例。
+      const p0 = Promise.resolve(900);
+      const p1 = Promise.reject(-888);
+      const p2 = Promise.resolve(p1); //传入p0时显示900；传入 p1 显示-888
+      p2.then(
+        value => {
+          console.log("p0: " + value);
+        },
+        reason => {
+          console.log("p1: " + reason);
+        }
+      );
+
+      //3. Promise.all()  全真则真，一假则假
+      const pa = Promise.resolve("a");
+      const pb = new Promise((resolve, rejected) => {
+        setTimeout(() => {
+          resolve("b");
+        }, 500);
+      });
+      const pc = new Promise((resolve, rejected) => {
+        setTimeout(() => {
+          resolve("c");
+        }, 3000);
+      });
+      const pd = new Promise((resolve, rejected) => {
+        setTimeout(() => {
+          rejected("d");
+        }, 400);
+      });
+
+      Promise.all([pa, pb, pc]).then(
+        value => {
+          console.log("all() success");
+        },
+        reason => {
+          console.log("all() fail");
+        }
+      );
+
+      Promise.race([pb, pc, pd]).then(
+        value => {
+          console.log("race() success");
+        },
+        reason => {
+          console.log("race() fail");
+        }
+      );
+    </script>
+  </body>
+</html>

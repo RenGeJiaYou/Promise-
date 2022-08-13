@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /* 
+      回调函数是什么：开发者定义的函数，开发者没有调用，函数最终被执行
+      回调的两种类型
+            1.同步回调
+                理解：立即在主线程上执行，不会放入回调队列中
+                例子：数组遍历相关的回调函数、Promise.executor()
+
+            2.异步回调
+                理解：不会立即执行，放入回调队列后执行
+                例子：定时器回调，AJAX 回调，Promise的成功/失败回调
+        */
+
+      //同步回调
+      let arr = [1, 3, 5, 7, 9];
+      arr.forEach(item => {
+        console.log(item);
+      });
+      console.log("我也在主线程"); //1，3，5，7，9 我也在主线程
+
+      //异步回调
+      setTimeout(() => {
+        console.log("定时器回调是异步回调，哪怕 0 ms,在回调队列中也是后执行");
+      }, 0);
+      console.log("我是主线程，先执行"); //我是主线程，先执行     定时器回调是异步回调，哪怕 0 ms,在回调队列中也是后执行
+    </script>
+  </body>
+</html>

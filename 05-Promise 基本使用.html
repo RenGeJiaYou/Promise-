@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 
+        1.两个最重要的语法 
+            new Promise(executor) 构造函数
+            Promise.prototype.then()
+
+        2.基本使用逻辑
+            1.新建 Promise 对象（pending），传入executor()
+            2.在excutor() 启动异步任务（定时器，ajax 请求）
+            3.根据任务的结果，做不同处理
+                3-1.任务成功：
+                    调用 resolve(value),让 Promise 状态变成 fulfilled ,并指定成功信息
+                    调用 rejected(reason),让 Promise 状态变成 rejected ,并指定失败信息
+
+    -->
+
+    <script>
+      //Promise 的定义：
+      const p = new Promise((resolve, rejected) => {
+        let date = Date.now();
+        if (date % 2 === 0) {
+          resolve("成功");
+        } else {
+          resolve("失败");
+        }
+      });
+
+      //Promise 的使用：
+      p.then(
+        value => {
+          console.log(value);
+        },
+        reason => {
+          console.log(reason);
+        }
+      );
+      console.log("@");
+    </script>
+  </body>
+</html>

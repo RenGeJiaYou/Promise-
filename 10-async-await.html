@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const p = new Promise((resolve, rejected) => {
+        setTimeout(() => {
+          resolve("q"); //将传到try{}
+          // rejected("q");//将传到 catch{}
+        }, 1000);
+      });
+      p.then(
+        value => {},
+        reason => {}
+      );
+
+      /*
+      1.async 修饰的函数
+          函数的返回值为 promise 对象
+          promise 对象的结果由 async 函数执行的返回值决定
+
+      2. await 表达式
+          await 后面一般为 Promise 实例，但也可以是其他值
+            （1）如果是 Promise 实例，await接收 其resolve()的value
+            （2）如果是其他值，await 直接接收此值（只是一个防呆设计，实际中没人这么用）
+
+      3. 注意：
+          await 必须写在 async 函数中，但 async 函数可以没有 await
+          如果await 的promise 实例失败了，错误由catch{}捕获
+       */
+      (async () => {
+        try {
+          //接收成功的 value
+          const result = await p;
+          console.log(result);
+        } catch (error) {
+          //接收失败的 reason
+          console.log(error);
+        }
+      })(); //使用回调函数、立即执行的形式简化
+
+      // async-await 只是一个语法糖
+      // 在浏览器中将会翻译为then()调用的方式
+      // 异步函数将在调用后推送到异步队列，不占用主线程的执行
+      (async () => {
+        //↓程序员的书写：
+        const result = await promiseFunc();
+        console.log(result);
+
+        //↑（完全等同）浏览器将翻译为：
+        promiseFunc().then(value => {
+          console.log(value);
+        });
+      })();
+      console.log("我是主线程");
+      //OutPut:
+      //我是主线程
+      //result
+
+      //async-await 改造then()链式调用
+      /*      
+      p1.then(
+        value => {
+          return " returner of p1 resolve"; 
+        },
+        reason => {
+          return " returner of p1 rejected "; 
+        }
+      )
+        .then(
+          value => {
+            console.log(value, "p2 success");
+            return Promise.resolve("p2 success");
+          },
+          reason => {
+            console.log(reason, "p2 fail");
+            return Promise.reject("p2 fail");
+          }
+        )
+        .then(
+          value => {
+            console.log(value, "p3 success");
+          },
+          reason => {
+            console.log(reason, "p3 fail");
+          }
+        );
+*/
+      (async () => {
+        try {
+          const r1 = await p1;
+          console.log(r1);
+          const r2 = await p1;
+          console.log(r2);
+          const r3 = await p1;
+          console.log(r3);
+        } catch (error) {
+          console.log(error);
+        }
+      })();
+    </script>
+  </body>
+</html>

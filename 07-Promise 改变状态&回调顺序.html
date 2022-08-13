@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Promise 关键问题</title>
+  </head>
+  <body>
+    <script>
+      /* 1. 如何改变一个 Promise 实例的状态？
+            (1) 执行 resolve()      :pending -> fulfilled
+            (2) 执行 reject()       :pending -> rejected
+            (3) executor 抛出异常   ：如果当前是pending, -> rejected
+        */
+
+      /* 2.改变 Promise 实例的状态和 指定回调函数 谁先谁后？
+            1. 都有可能。通常是先指定回调再改变状态，也可先改状态再指定回调。
+
+        3.什么时候调用回调函数，得到成功的value / 失败的reason？
+            先指定回调函数：    当 p 状态改变时 立即调用回调，得到数据
+            先改变状态：        当 p 指定回调函数时 立即调用回调，得到数据
+            总之，两个条件都被满足，立即开始。
+
+        */
+      //(最常见) Promise 实例 p 先指定了then()中的2个回调函数到队列里，然后等待子线程上的异步操作完成后改变状态。
+      const p1 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve("指定回调 -> 改变状态");
+        }, 1000);
+      });
+
+      p1.then(
+        value => {
+          console.log("ok", value);
+        },
+        reason => {
+          console.log("no", reason);
+        }
+      );
+      //先改变状态，后指定回调
+      const p2 = new Promise((resolve, reject) => {
+        resolve("改变状态 -> 指定回调");
+      });
+
+      setTimeout(() => {
+        p2.then(
+          value => {
+            console.log("ok", value);
+          },
+          reason => {
+            console.log("no", reason);
+          }
+        );
+      }, 3000);
+    </script>
+  </body>
+</html>

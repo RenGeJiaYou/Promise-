@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /*中断
+      在then() 调用链后如果某一次请求失败了，将返回 undefined。这个 非Promise 值会让下一次 then() 调用 resolve()
+        解决目标：希望某次失败后，中断该链，
+        解决方法：为每一个失败的回调返回一个状态为 pending 的 Promise 实例。
+        */
+
+      // 定义一个发送请求的函数，返回一个新的 Promise 实例（封装了 ajsx 异步任务）
+      function promiseAjax(url) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState !== 4) return;
+            const { status, response } = xhr;
+            if (status >= 200 && status < 300) {
+              // 请求成功, 调用 resolve(value)
+              resolve(JSON.parse(response));
+            } else {
+              // 请求失败, 调用 reject(reason)
+              reject(new Error("请求失败: status: " + status));
+            }
+          };
+          xhr.open("GET", url);
+          xhr.send();
+        });
+      }
+
+      // 定义正确和错误的 url 地址便于之后的测试
+      const url = "https://api.apiopen.top/api/getHaoKanVideo?page=0&size=2";
+      const url_error =
+        "https://api.apiopen.top/api22/getHaoKanVideo?page=0&size=2";
+
+      // then 的链式调用解决回调地狱问题
+      promiseAjax(url)
+        .then(
+          value => {
+            console.log("显示第1次成功的数据", value);
+            return promiseAjax(url);
+          },
+          reason => {
+            alert(reason.message);
+            return new Promise(() => {}); //发生错误时，完成中断
+          }
+        )
+        .then(
+          value => {
+            console.log("显示第2次成功的数据", value);
+            return promiseAjax(url);
+          },
+          reason => {
+            alert(reason.message);
+            return new Promise(() => {}); //发生错误时，完成中断
+          }
+        )
+        .then(
+          value => {
+            console.log("显示第3次成功的数据", value);
+          },
+          reason => {
+            alert(reason.message);
+            return new Promise(() => {}); //发生错误时，完成中断
+          }
+        )
+        .then(
+          value => {
+            console.log("显示第4次成功的数据", value);
+            return promiseAjax(url);
+          },
+          reason => {
+            alert(reason.message);
+          }
+        );
+
+      /*错误穿透
+      问题的产生：我们在每一个 then() 方法中都要指定失败的回调，并且需要返回值以中断 Promise 链，
+              这些失败的回调代码极其相似，显得繁琐。
+      
+      解决方案：删除所有then()中的rejected() 语句，在链尾使用 .catch() 方法兜底。之前then()链上任何一个出错，错误 reason 都将直接传递到 catch()
+      
+      运行原理：虽然没有在 then() 方法中指定失败的回调，但是JS引擎为我们补了 reason => {throw reason}，
+              这个 reason 不断通过失败的回调传递给 .catch() 方法，最终抛出异常。
+      */
+
+      promiseAjax(url)
+        .then(
+          value => {
+            console.log("显示第1次成功的数据", value);
+            return promiseAjax(url_error);
+          }
+          // 我们虽然没有写失败的回调，但实际上底层为我们补了以下代码：
+          // reason => {throw reason}
+        )
+        .then(
+          value => {
+            console.log("显示第2次成功的数据", value);
+            return promiseAjax(url);
+          }
+          // 我们虽然没有写失败的回调，但实际上底层为我们补了以下代码：
+          // reason => {throw reason;}
+        )
+        .catch(reason => {
+          alert(reason.message);
+        });
+    </script>
+  </body>
+</html>
